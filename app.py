@@ -7,11 +7,18 @@ st.title("🤖 Chat with Viper (Free Groq Version)")
 # --- Load API Key from Streamlit Secrets ---
 GROQ_API_KEY = st.secrets.get("GROQ_API_KEY")
 if not GROQ_API_KEY:
-    st.error("❌ GROQ_API_KEY not found in Streamlit Secrets. Please add it in your Streamlit Cloud settings.")
-    st.stop()
+    st.error(
+        "❌ GROQ_API_KEY not found in Streamlit Secrets. "
+        "Please add it in your Streamlit Cloud settings."
+    )
+    st.stop()  # Stop the app if API key is missing
 
-# --- Initialize Groq client ---
-client = Groq(api_key=GROQ_API_KEY)
+# --- Initialize Groq client safely ---
+try:
+    client = Groq(api_key=GROQ_API_KEY)
+except Exception as e:
+    st.error(f"Failed to initialize Groq client: {e}")
+    st.stop()
 
 # --- Initialize Chat History ---
 if "messages" not in st.session_state:
