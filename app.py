@@ -2,16 +2,18 @@ import streamlit as st
 from groq import Groq
 
 # --- App Title ---
+st.set_page_config(page_title="🤖 Chat with Viper", layout="wide")
 st.title("🤖 Chat with Viper (Groq Version)")
 
 # --- Load API Key from Streamlit Secrets ---
-GROQ_API_KEY = st.secrets.get("GROQ_API_KEY")
-if not GROQ_API_KEY:
+try:
+    GROQ_API_KEY = st.secrets["GROQ_API_KEY"]
+except KeyError:
     st.error(
-        "❌ GROQ_API_KEY not found in Streamlit Secrets. "
-        "Please add it in your Streamlit Cloud settings or in .streamlit/secrets.toml"
+        "❌ GROQ_API_KEY not found!\n"
+        "Add it to `.streamlit/secrets.toml` or Streamlit Cloud Secrets."
     )
-    st.stop()  # Stop the app if API key is missing
+    st.stop()
 
 # --- Initialize Groq client safely ---
 try:
@@ -27,7 +29,7 @@ model = st.selectbox(
         "llama-3.1-8b-instant",    # Fast, light, cheap
         "llama-3.3-70b-versatile", # More powerful, higher quality
     ],
-    index=0,  # default is the instant one
+    index=0,
 )
 
 # --- Initialize Chat History ---
