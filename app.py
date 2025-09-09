@@ -2,14 +2,14 @@ import streamlit as st
 from groq import Groq
 
 # --- App Title ---
-st.title("🤖 Chat with Viper (Free Groq Version)")
+st.title("🤖 Chat with Viper (Groq Version)")
 
 # --- Load API Key from Streamlit Secrets ---
 GROQ_API_KEY = st.secrets.get("GROQ_API_KEY")
 if not GROQ_API_KEY:
     st.error(
         "❌ GROQ_API_KEY not found in Streamlit Secrets. "
-        "Please add it in your Streamlit Cloud settings."
+        "Please add it in your Streamlit Cloud settings or in .streamlit/secrets.toml"
     )
     st.stop()  # Stop the app if API key is missing
 
@@ -20,12 +20,22 @@ except Exception as e:
     st.error(f"Failed to initialize Groq client: {e}")
     st.stop()
 
+# --- Choose Model ---
+model = st.selectbox(
+    "Choose a Groq model:",
+    [
+        "llama-3.1-8b-instant",    # Fast, light, cheap
+        "llama-3.3-70b-versatile", # More powerful, higher quality
+    ],
+    index=0,  # default is the instant one
+)
+
 # --- Initialize Chat History ---
 if "messages" not in st.session_state:
     st.session_state.messages = []
 
 # --- Clear Chat Button ---
-if st.button("Clear Chat"):
+if st.button("🗑️ Clear Chat"):
     st.session_state.messages = []
     st.experimental_rerun()
 
@@ -46,7 +56,7 @@ if user_input := st.chat_input("Type your message here..."):
     with st.chat_message("assistant"):
         try:
             response = client.chat.completions.create(
-                model="llama3-8b-8192",  # Free & fast model
+                model=model,
                 messages=st.session_state.messages
             )
             reply = response.choices[0].message.content
